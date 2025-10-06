@@ -1,0 +1,41 @@
+
+set i "--jellybean colors--" /yellow, blue, green, orange, purple/;
+set m "machines" /X1, X2/;
+
+parameter r(i) "--net revenue per color ($/unit)--" /
+yellow 1, blue 1.05, green 1.07, orange 0.95, purple 0.9 /;
+
+scalar hbar "hours per machine per week" /40/, prodbar "units per hour per machine" /100/, dev "deviation band" /0.05/;
+scalar totalprodbar; totalprodbar = hbar * prodbar;
+
+positive variable Q(m,i) "production per color per machine (units)";
+variable profit, Pavg;
+
+equations eq_objfn, eq_cap(m), eq_Pavg, eq_upper(i), eq_lower(i);
+
+eq_objfn.. profit =e= sum((m,i), Q(m,i)*r(i));
+eq_cap(m).. sum(i, Q(m,i)) =l= totalprodbar;
+eq_Pavg.. Pavg =e= sum(i, sum(m, Q(m,i))) / card(i);
+eq_upper(i).. sum(m, Q(m,i)) =l= (1+dev)*Pavg;
+eq_lower(i).. sum(m, Q(m,i)) =g= (1-dev)*Pavg;
+
+model jellybean /all/;
+solve jellybean using lp maximizing profit;
+
+execute_unload 'Q2c_refactored.gdx';
+
+parameter rep(m,i); rep(m,i) = Q.l(m,i);
+display Q.l, profit.l, Pavg.l, rep;
+
+* export jellybean results to CSV
+file jres / 'jellybean_results.csv' /;
+put jres;
+put 'machine,color,units,revenue' /;
+loop((m,i),
+    put m.tl:0:',' , i.tl:0:',' , Q.l(m,i):0:2 , ',' , Q.l(m,i)*r(i):0:2 /;
+    put /;
+);
+putclose jres;
+
+
+$exit
