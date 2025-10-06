@@ -1,4 +1,3 @@
-*** Letter A and B ***
 
 set i "--jellybean colors--" /yellow, blue, green, orange, purple/;
 set m "machines" /X1, X2/;
@@ -37,5 +36,6 @@ loop((m,i),
     put /;
 );
 putclose jres;
+
 
 $exit
