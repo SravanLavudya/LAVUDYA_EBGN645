@@ -1,0 +1,970 @@
+GAMS 50.4.1  84b10359 Aug 28, 2025          WEX-WEI x86 64bit/MS Windows - 10/22/25 01:54:53 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  set i /site1, site2, site3/;
+   2  set s /s1, s2/;
+   3  set t /t1*t20/;
+   4   
+   5  parameter H(i,s) "Tailing Temperature (°C) T is not working here"
+   6  /
+   7  site1.s1 80
+   8  site1.s2 70
+   9  site2.s1 85
+  10  site2.s2 75
+  11  site3.s1 90
+  12  site3.s2 65
+  13  /;
+  14   
+  15   
+  16  parameter E(s) "efficiency of energy conversion"
+  17  /
+  18  s1 0.85,
+  19  s2 0.80
+  20  /;
+  21   
+  22  parameter Price(t) "electricity price ($/MWh)"
+  23  /
+  24  t1*t20 30
+  25  / ;
+  26   
+  27  parameter WaterUse(i,s) "water usage per scenario at each site (m3)"
+  28  /
+  29  site1.s1 100,
+  30  site1.s2 120,
+  31  site2.s1 90,
+  32  site2.s2 110,
+  33  site3.s1 95,
+  34  site3.s2 105
+  35  /;
+  36   
+  37  parameter WaterLimit(i) "maximum allowed water usage per site (m3)"
+  38  /
+  39  site1 110,
+  40  site2 100,
+  41  site3 100
+  42  /;
+  43   
+  44   
+  45  binary variable X(i,s)      "1 scenario is selected for site i";
+  46  positive variable P(i,s,t)  "power output at site i, scenario s, time t";
+  47  positive variable R(i,s,t) "revenue from energy generation";
+  48  variable Energy_total       "total energy recovered (MWh)";
+  49  variable Revenue_total      "total revenue ($)";
+  50   
+  51   
+  52  equation
+  53  eq_power_output(i,s,t) "define power output",
+  54  eq_energy_total        "total energy recovered",
+  55  eq_scenario_limit(i)   "only one scenario per site",
+  56  eq_revenue_calc(i,s,t) "revenue calculation",
+  57  eq_revenue_total       "total revenue",
+  58  eq_water_limit(i)      "environmental constraint: water usage"
+  59  ;
+  60   
+  61  eq_power_output(i,s,t)..
+  62  P(i,s,t) =e= H(i,s) * E(s) * X(i,s);
+  63   
+  64  eq_energy_total..
+  65  Energy_total =e= sum((i,s,t), P(i,s,t));
+  66   
+  67  eq_scenario_limit(i)..
+  68  sum(s, X(i,s)) =l= 1;
+  69   
+  70  eq_revenue_calc(i,s,t)..
+  71  R(i,s,t) =e= P(i,s,t) * Price(t);
+  72   
+  73  eq_revenue_total..
+  74  Revenue_total =e= sum((i,s,t), R(i,s,t));
+  75   
+  76  eq_water_limit(i)..
+  77  sum(s, WaterUse(i,s) * X(i,s)) =l= WaterLimit(i);
+  78   
+  79  model energy_model
+  80  /eq_power_output, eq_energy_total, eq_scenario_limit,
+  81  eq_revenue_calc, eq_revenue_total, eq_water_limit/;
+  82   
+  83   
+  84  solve energy_model using mip maximizing Energy_total;
+  85   
+  86   
+  87  display Energy_total.l, Revenue_total.l, X.l, P.l, R.l;
+  88   
+  89  execute_unload 'energy_recovery.gdx';
+  90   
+EXIT C:\Users\srava\Downloads\homework 1.b.gms
+GAMS 50.4.1  84b10359 Aug 28, 2025          WEX-WEI x86 64bit/MS Windows - 10/22/25 01:54:53 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\srava\Downloads\homework 1.b.gms
+     2       91 EXIT           1      91  C:\Users\srava\Downloads\homework 1.b.gms
+
+
+COMPILATION TIME     =        0.015 SECONDS      3 MB  50.4.1 84b10359 WEX-WEI
+GAMS 50.4.1  84b10359 Aug 28, 2025          WEX-WEI x86 64bit/MS Windows - 10/22/25 01:54:53 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE energy_model Using MIP From line 84
+
+
+---- eq_power_output  =E=  define power output
+
+eq_power_output(site1,s1,t1)..  - 68*X(site1,s1) + P(site1,s1,t1) =E= 0 ; (LHS = 0)
+     
+eq_power_output(site1,s1,t2)..  - 68*X(site1,s1) + P(site1,s1,t2) =E= 0 ; (LHS = 0)
+     
+eq_power_output(site1,s1,t3)..  - 68*X(site1,s1) + P(site1,s1,t3) =E= 0 ; (LHS = 0)
+     
+REMAINING 117 ENTRIES SKIPPED
+
+
+---- eq_energy_total  =E=  total energy recovered
+
+eq_energy_total..  - P(site1,s1,t1) - P(site1,s1,t2) - P(site1,s1,t3) - P(site1,s1,t4) - P(site1,s1,t5) - P(site1,s1,t6) - P(site1,s1,t7) - P(site1,s1,t8) - P(site1,s1,t9) - P(site1,s1,t10) - P(site1,s1,t11) - P(site1,s1,t12) - P(site1,s1,t13) - P(site1,s1,t14) - P(site1,s1,t15) - P(site1,s1,t16) - P(site1,s1,t17) - P(site1,s1,t18) - P(site1,s1,t19) - P(site1,s1,t20) - P(site1,s2,t1) - P(site1,s2,t2) - P(site1,s2,t3) - P(site1,s2,t4) - P(site1,s2,t5) - P(site1,s2,t6) - P(site1,s2,t7) - P(site1,s2,t8) - P(site1,s2,t9) - P(site1,s2,t10) - P(site1,s2,t11) - P(site1,s2,t12) - P(site1,s2,t13) - P(site1,s2,t14) - P(site1,s2,t15) - P(site1,s2,t16) - P(site1,s2,t17) - P(site1,s2,t18) - P(site1,s2,t19) - P(site1,s2,t20) - P(site2,s1,t1) - P(site2,s1,t2) - P(site2,s1,t3) - P(site2,s1,t4) - P(site2,s1,t5) - P(site2,s1,t6) - P(site2,s1,t7) - P(site2,s1,t8) - P(site2,s1,t9) - P(site2,s1,t10) - P(site2,s1,t11) - P(site2,s1,t12) - P(site2,s1,t13) - P(site2,s1,t14) - P(site2,s1,t15) - P(site2,s1,t16) - P(site2,s1,t17) - P(site2,s1,t18) - P(site2,s1,t19) - P(site2,s1,t20) - P(site2,s2,t1) - P(site2,s2,t2) - P(site2,s2,t3) - P(site2,s2,t4) - P(site2,s2,t5) - P(site2,s2,t6) - P(site2,s2,t7) - P(site2,s2,t8) - P(site2,s2,t9) - P(site2,s2,t10) - P(site2,s2,t11) - P(site2,s2,t12) - P(site2,s2,t13) - P(site2,s2,t14) - P(site2,s2,t15) - P(site2,s2,t16) - P(site2,s2,t17) - P(site2,s2,t18) - P(site2,s2,t19) - P(site2,s2,t20) - P(site3,s1,t1) - P(site3,s1,t2) - P(site3,s1,t3) - P(site3,s1,t4) - P(site3,s1,t5) - P(site3,s1,t6) - P(site3,s1,t7) - P(site3,s1,t8) - P(site3,s1,t9) - P(site3,s1,t10) - P(site3,s1,t11) - P(site3,s1,t12) - P(site3,s1,t13) - P(site3,s1,t14) - P(site3,s1,t15) - P(site3,s1,t16) - P(site3,s1,t17) - P(site3,s1,t18) - P(site3,s1,t19) - P(site3,s1,t20) - P(site3,s2,t1) - P(site3,s2,t2) - P(site3,s2,t3) - P(site3,s2,t4) - P(site3,s2,t5) - P(site3,s2,t6) - P(site3,s2,t7) - P(site3,s2,t8) - P(site3,s2,t9) - P(site3,s2,t10) - P(site3,s2,t11) - P(site3,s2,t12) - P(site3,s2,t13) - P(site3,s2,t14) - P(site3,s2,t15) - P(site3,s2,t16) - P(site3,s2,t17) - P(site3,s2,t18) - P(site3,s2,t19) - P(site3,s2,t20) + Energy_total =E= 0 ; (LHS = 0)
+     
+
+---- eq_scenario_limit  =L=  only one scenario per site
+
+eq_scenario_limit(site1)..  X(site1,s1) + X(site1,s2) =L= 1 ; (LHS = 0)
+     
+eq_scenario_limit(site2)..  X(site2,s1) + X(site2,s2) =L= 1 ; (LHS = 0)
+     
+eq_scenario_limit(site3)..  X(site3,s1) + X(site3,s2) =L= 1 ; (LHS = 0)
+     
+
+---- eq_revenue_calc  =E=  revenue calculation
+
+eq_revenue_calc(site1,s1,t1)..  - 30*P(site1,s1,t1) + R(site1,s1,t1) =E= 0 ; (LHS = 0)
+     
+eq_revenue_calc(site1,s1,t2)..  - 30*P(site1,s1,t2) + R(site1,s1,t2) =E= 0 ; (LHS = 0)
+     
+eq_revenue_calc(site1,s1,t3)..  - 30*P(site1,s1,t3) + R(site1,s1,t3) =E= 0 ; (LHS = 0)
+     
+REMAINING 117 ENTRIES SKIPPED
+
+
+---- eq_revenue_total  =E=  total revenue
+
+eq_revenue_total..  - R(site1,s1,t1) - R(site1,s1,t2) - R(site1,s1,t3) - R(site1,s1,t4) - R(site1,s1,t5) - R(site1,s1,t6) - R(site1,s1,t7) - R(site1,s1,t8) - R(site1,s1,t9) - R(site1,s1,t10) - R(site1,s1,t11) - R(site1,s1,t12) - R(site1,s1,t13) - R(site1,s1,t14) - R(site1,s1,t15) - R(site1,s1,t16) - R(site1,s1,t17) - R(site1,s1,t18) - R(site1,s1,t19) - R(site1,s1,t20) - R(site1,s2,t1) - R(site1,s2,t2) - R(site1,s2,t3) - R(site1,s2,t4) - R(site1,s2,t5) - R(site1,s2,t6) - R(site1,s2,t7) - R(site1,s2,t8) - R(site1,s2,t9) - R(site1,s2,t10) - R(site1,s2,t11) - R(site1,s2,t12) - R(site1,s2,t13) - R(site1,s2,t14) - R(site1,s2,t15) - R(site1,s2,t16) - R(site1,s2,t17) - R(site1,s2,t18) - R(site1,s2,t19) - R(site1,s2,t20) - R(site2,s1,t1) - R(site2,s1,t2) - R(site2,s1,t3) - R(site2,s1,t4) - R(site2,s1,t5) - R(site2,s1,t6) - R(site2,s1,t7) - R(site2,s1,t8) - R(site2,s1,t9) - R(site2,s1,t10) - R(site2,s1,t11) - R(site2,s1,t12) - R(site2,s1,t13) - R(site2,s1,t14) - R(site2,s1,t15) - R(site2,s1,t16) - R(site2,s1,t17) - R(site2,s1,t18) - R(site2,s1,t19) - R(site2,s1,t20) - R(site2,s2,t1) - R(site2,s2,t2) - R(site2,s2,t3) - R(site2,s2,t4) - R(site2,s2,t5) - R(site2,s2,t6) - R(site2,s2,t7) - R(site2,s2,t8) - R(site2,s2,t9) - R(site2,s2,t10) - R(site2,s2,t11) - R(site2,s2,t12) - R(site2,s2,t13) - R(site2,s2,t14) - R(site2,s2,t15) - R(site2,s2,t16) - R(site2,s2,t17) - R(site2,s2,t18) - R(site2,s2,t19) - R(site2,s2,t20) - R(site3,s1,t1) - R(site3,s1,t2) - R(site3,s1,t3) - R(site3,s1,t4) - R(site3,s1,t5) - R(site3,s1,t6) - R(site3,s1,t7) - R(site3,s1,t8) - R(site3,s1,t9) - R(site3,s1,t10) - R(site3,s1,t11) - R(site3,s1,t12) - R(site3,s1,t13) - R(site3,s1,t14) - R(site3,s1,t15) - R(site3,s1,t16) - R(site3,s1,t17) - R(site3,s1,t18) - R(site3,s1,t19) - R(site3,s1,t20) - R(site3,s2,t1) - R(site3,s2,t2) - R(site3,s2,t3) - R(site3,s2,t4) - R(site3,s2,t5) - R(site3,s2,t6) - R(site3,s2,t7) - R(site3,s2,t8) - R(site3,s2,t9) - R(site3,s2,t10) - R(site3,s2,t11) - R(site3,s2,t12) - R(site3,s2,t13) - R(site3,s2,t14) - R(site3,s2,t15) - R(site3,s2,t16) - R(site3,s2,t17) - R(site3,s2,t18) - R(site3,s2,t19) - R(site3,s2,t20) + Revenue_total =E= 0 ; (LHS = 0)
+     
+
+---- eq_water_limit  =L=  environmental constraint: water usage
+
+eq_water_limit(site1)..  100*X(site1,s1) + 120*X(site1,s2) =L= 110 ; (LHS = 0)
+     
+eq_water_limit(site2)..  90*X(site2,s1) + 110*X(site2,s2) =L= 100 ; (LHS = 0)
+     
+eq_water_limit(site3)..  95*X(site3,s1) + 105*X(site3,s2) =L= 100 ; (LHS = 0)
+     
+GAMS 50.4.1  84b10359 Aug 28, 2025          WEX-WEI x86 64bit/MS Windows - 10/22/25 01:54:53 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE energy_model Using MIP From line 84
+
+
+---- X  1 scenario is selected for site i
+
+X(site1,s1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      -68       eq_power_output(site1,s1,t1)
+      -68       eq_power_output(site1,s1,t2)
+      -68       eq_power_output(site1,s1,t3)
+      -68       eq_power_output(site1,s1,t4)
+      -68       eq_power_output(site1,s1,t5)
+      -68       eq_power_output(site1,s1,t6)
+      -68       eq_power_output(site1,s1,t7)
+      -68       eq_power_output(site1,s1,t8)
+      -68       eq_power_output(site1,s1,t9)
+      -68       eq_power_output(site1,s1,t10)
+      -68       eq_power_output(site1,s1,t11)
+      -68       eq_power_output(site1,s1,t12)
+      -68       eq_power_output(site1,s1,t13)
+      -68       eq_power_output(site1,s1,t14)
+      -68       eq_power_output(site1,s1,t15)
+      -68       eq_power_output(site1,s1,t16)
+      -68       eq_power_output(site1,s1,t17)
+      -68       eq_power_output(site1,s1,t18)
+      -68       eq_power_output(site1,s1,t19)
+      -68       eq_power_output(site1,s1,t20)
+        1       eq_scenario_limit(site1)
+      100       eq_water_limit(site1)
+
+X(site1,s2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      -56       eq_power_output(site1,s2,t1)
+      -56       eq_power_output(site1,s2,t2)
+      -56       eq_power_output(site1,s2,t3)
+      -56       eq_power_output(site1,s2,t4)
+      -56       eq_power_output(site1,s2,t5)
+      -56       eq_power_output(site1,s2,t6)
+      -56       eq_power_output(site1,s2,t7)
+      -56       eq_power_output(site1,s2,t8)
+      -56       eq_power_output(site1,s2,t9)
+      -56       eq_power_output(site1,s2,t10)
+      -56       eq_power_output(site1,s2,t11)
+      -56       eq_power_output(site1,s2,t12)
+      -56       eq_power_output(site1,s2,t13)
+      -56       eq_power_output(site1,s2,t14)
+      -56       eq_power_output(site1,s2,t15)
+      -56       eq_power_output(site1,s2,t16)
+      -56       eq_power_output(site1,s2,t17)
+      -56       eq_power_output(site1,s2,t18)
+      -56       eq_power_output(site1,s2,t19)
+      -56       eq_power_output(site1,s2,t20)
+        1       eq_scenario_limit(site1)
+      120       eq_water_limit(site1)
+
+X(site2,s1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      -72.25    eq_power_output(site2,s1,t1)
+      -72.25    eq_power_output(site2,s1,t2)
+      -72.25    eq_power_output(site2,s1,t3)
+      -72.25    eq_power_output(site2,s1,t4)
+      -72.25    eq_power_output(site2,s1,t5)
+      -72.25    eq_power_output(site2,s1,t6)
+      -72.25    eq_power_output(site2,s1,t7)
+      -72.25    eq_power_output(site2,s1,t8)
+      -72.25    eq_power_output(site2,s1,t9)
+      -72.25    eq_power_output(site2,s1,t10)
+      -72.25    eq_power_output(site2,s1,t11)
+      -72.25    eq_power_output(site2,s1,t12)
+      -72.25    eq_power_output(site2,s1,t13)
+      -72.25    eq_power_output(site2,s1,t14)
+      -72.25    eq_power_output(site2,s1,t15)
+      -72.25    eq_power_output(site2,s1,t16)
+      -72.25    eq_power_output(site2,s1,t17)
+      -72.25    eq_power_output(site2,s1,t18)
+      -72.25    eq_power_output(site2,s1,t19)
+      -72.25    eq_power_output(site2,s1,t20)
+        1       eq_scenario_limit(site2)
+       90       eq_water_limit(site2)
+
+REMAINING 3 ENTRIES SKIPPED
+
+---- P  power output at site i, scenario s, time t
+
+P(site1,s1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       eq_power_output(site1,s1,t1)
+       -1       eq_energy_total
+      -30       eq_revenue_calc(site1,s1,t1)
+
+P(site1,s1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       eq_power_output(site1,s1,t2)
+       -1       eq_energy_total
+      -30       eq_revenue_calc(site1,s1,t2)
+
+P(site1,s1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       eq_power_output(site1,s1,t3)
+       -1       eq_energy_total
+      -30       eq_revenue_calc(site1,s1,t3)
+
+REMAINING 117 ENTRIES SKIPPED
+
+---- R  revenue from energy generation
+
+R(site1,s1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       eq_revenue_calc(site1,s1,t1)
+       -1       eq_revenue_total
+
+R(site1,s1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       eq_revenue_calc(site1,s1,t2)
+       -1       eq_revenue_total
+
+R(site1,s1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       eq_revenue_calc(site1,s1,t3)
+       -1       eq_revenue_total
+
+REMAINING 117 ENTRIES SKIPPED
+
+---- Energy_total  total energy recovered (MWh)
+
+Energy_total
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       eq_energy_total
+
+
+---- Revenue_total  total revenue ($)
+
+Revenue_total
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       eq_revenue_total
+
+GAMS 50.4.1  84b10359 Aug 28, 2025          WEX-WEI x86 64bit/MS Windows - 10/22/25 01:54:53 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Range Statistics    SOLVE energy_model Using MIP From line 84
+
+
+RANGE STATISTICS (ABSOLUTE NON-ZERO FINITE VALUES)
+
+RHS       [min, max] : [ 1.000E+00, 1.100E+02] - Zero values observed as well
+Bound     [min, max] : [ 1.000E+00, 1.000E+00] - Zero values observed as well
+Matrix    [min, max] : [ 1.000E+00, 1.200E+02]
+
+GAMS 50.4.1  84b10359 Aug 28, 2025          WEX-WEI x86 64bit/MS Windows - 10/22/25 01:54:53 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE energy_model Using MIP From line 84
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           6     SINGLE EQUATIONS          248
+BLOCKS OF VARIABLES           5     SINGLE VARIABLES          248
+NON ZERO ELEMENTS           734     DISCRETE VARIABLES          6
+
+
+GENERATION TIME      =        0.016 SECONDS      4 MB  50.4.1 84b10359 WEX-WEI
+GAMS 50.4.1  84b10359 Aug 28, 2025          WEX-WEI x86 64bit/MS Windows - 10/22/25 01:54:53 Page 7
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE energy_model Using MIP From line 84
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   energy_model        OBJECTIVE  Energy_total
+     TYPE    MIP                 DIRECTION  MAXIMIZE
+     SOLVER  CPLEX               FROM LINE  84
+
+**** SOLVER STATUS     1 Normal Completion
+**** MODEL STATUS      1 Optimal
+**** OBJECTIVE VALUE             4335.0000
+
+ RESOURCE USAGE, LIMIT          0.000 10000000000.000
+ ITERATION COUNT, LIMIT         0    2147483647
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- Space for names approximately 0.01 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 0.56 Mb (peak 0.56 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.2.0 link memory 0.01 Mb (peak 0.03 Mb)
+--- Starting Cplex
+
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.00sec (det. 0.19 ticks)
+
+--- Returning a primal only solution to GAMS (marginals all set to NA).
+--- Fixing integer variables and solving final LP...
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.00sec (det. 0.21 ticks)
+
+
+Proven optimal solution
+MIP Solution:         4335.000000    (0 iterations, 0 nodes)
+Final Solve:          4335.000000    (0 iterations)
+
+Best possible:        4335.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+---- EQU eq_power_output  define power output
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+site1.s1.t1           .              .              .             1.0000      
+site1.s1.t2           .              .              .             1.0000      
+site1.s1.t3           .              .              .             1.0000      
+site1.s1.t4           .              .              .             1.0000      
+site1.s1.t5           .              .              .             1.0000      
+site1.s1.t6           .              .              .             1.0000      
+site1.s1.t7           .              .              .             1.0000      
+site1.s1.t8           .              .              .             1.0000      
+site1.s1.t9           .              .              .             1.0000      
+site1.s1.t10          .              .              .             1.0000      
+site1.s1.t11          .              .              .             1.0000      
+site1.s1.t12          .              .              .             1.0000      
+site1.s1.t13          .              .              .             1.0000      
+site1.s1.t14          .              .              .             1.0000      
+site1.s1.t15          .              .              .             1.0000      
+site1.s1.t16          .              .              .             1.0000      
+site1.s1.t17          .              .              .             1.0000      
+site1.s1.t18          .              .              .             1.0000      
+site1.s1.t19          .              .              .             1.0000      
+site1.s1.t20          .              .              .             1.0000      
+site1.s2.t1           .              .              .             1.0000      
+site1.s2.t2           .              .              .             1.0000      
+site1.s2.t3           .              .              .             1.0000      
+site1.s2.t4           .              .              .             1.0000      
+site1.s2.t5           .              .              .             1.0000      
+site1.s2.t6           .              .              .             1.0000      
+site1.s2.t7           .              .              .             1.0000      
+site1.s2.t8           .              .              .             1.0000      
+site1.s2.t9           .              .              .             1.0000      
+site1.s2.t10          .              .              .             1.0000      
+site1.s2.t11          .              .              .             1.0000      
+site1.s2.t12          .              .              .             1.0000      
+site1.s2.t13          .              .              .             1.0000      
+site1.s2.t14          .              .              .             1.0000      
+site1.s2.t15          .              .              .             1.0000      
+site1.s2.t16          .              .              .             1.0000      
+site1.s2.t17          .              .              .             1.0000      
+site1.s2.t18          .              .              .             1.0000      
+site1.s2.t19          .              .              .             1.0000      
+site1.s2.t20          .              .              .             1.0000      
+site2.s1.t1           .              .              .             1.0000      
+site2.s1.t2           .              .              .             1.0000      
+site2.s1.t3           .              .              .             1.0000      
+site2.s1.t4           .              .              .             1.0000      
+site2.s1.t5           .              .              .             1.0000      
+site2.s1.t6           .              .              .             1.0000      
+site2.s1.t7           .              .              .             1.0000      
+site2.s1.t8           .              .              .             1.0000      
+site2.s1.t9           .              .              .             1.0000      
+site2.s1.t10          .              .              .             1.0000      
+site2.s1.t11          .              .              .             1.0000      
+site2.s1.t12          .              .              .             1.0000      
+site2.s1.t13          .              .              .             1.0000      
+site2.s1.t14          .              .              .             1.0000      
+site2.s1.t15          .              .              .             1.0000      
+site2.s1.t16          .              .              .             1.0000      
+site2.s1.t17          .              .              .             1.0000      
+site2.s1.t18          .              .              .             1.0000      
+site2.s1.t19          .              .              .             1.0000      
+site2.s1.t20          .              .              .             1.0000      
+site2.s2.t1           .              .              .             1.0000      
+site2.s2.t2           .              .              .             1.0000      
+site2.s2.t3           .              .              .             1.0000      
+site2.s2.t4           .              .              .             1.0000      
+site2.s2.t5           .              .              .             1.0000      
+site2.s2.t6           .              .              .             1.0000      
+site2.s2.t7           .              .              .             1.0000      
+site2.s2.t8           .              .              .             1.0000      
+site2.s2.t9           .              .              .             1.0000      
+site2.s2.t10          .              .              .             1.0000      
+site2.s2.t11          .              .              .             1.0000      
+site2.s2.t12          .              .              .             1.0000      
+site2.s2.t13          .              .              .             1.0000      
+site2.s2.t14          .              .              .             1.0000      
+site2.s2.t15          .              .              .             1.0000      
+site2.s2.t16          .              .              .             1.0000      
+site2.s2.t17          .              .              .             1.0000      
+site2.s2.t18          .              .              .             1.0000      
+site2.s2.t19          .              .              .             1.0000      
+site2.s2.t20          .              .              .             1.0000      
+site3.s1.t1           .              .              .             1.0000      
+site3.s1.t2           .              .              .             1.0000      
+site3.s1.t3           .              .              .             1.0000      
+site3.s1.t4           .              .              .             1.0000      
+site3.s1.t5           .              .              .             1.0000      
+site3.s1.t6           .              .              .             1.0000      
+site3.s1.t7           .              .              .             1.0000      
+site3.s1.t8           .              .              .             1.0000      
+site3.s1.t9           .              .              .             1.0000      
+site3.s1.t10          .              .              .             1.0000      
+site3.s1.t11          .              .              .             1.0000      
+site3.s1.t12          .              .              .             1.0000      
+site3.s1.t13          .              .              .             1.0000      
+site3.s1.t14          .              .              .             1.0000      
+site3.s1.t15          .              .              .             1.0000      
+site3.s1.t16          .              .              .             1.0000      
+site3.s1.t17          .              .              .             1.0000      
+site3.s1.t18          .              .              .             1.0000      
+site3.s1.t19          .              .              .             1.0000      
+site3.s1.t20          .              .              .             1.0000      
+site3.s2.t1           .              .              .             1.0000      
+site3.s2.t2           .              .              .             1.0000      
+site3.s2.t3           .              .              .             1.0000      
+site3.s2.t4           .              .              .             1.0000      
+site3.s2.t5           .              .              .             1.0000      
+site3.s2.t6           .              .              .             1.0000      
+site3.s2.t7           .              .              .             1.0000      
+site3.s2.t8           .              .              .             1.0000      
+site3.s2.t9           .              .              .             1.0000      
+site3.s2.t10          .              .              .             1.0000      
+site3.s2.t11          .              .              .             1.0000      
+site3.s2.t12          .              .              .             1.0000      
+site3.s2.t13          .              .              .             1.0000      
+site3.s2.t14          .              .              .             1.0000      
+site3.s2.t15          .              .              .             1.0000      
+site3.s2.t16          .              .              .             1.0000      
+site3.s2.t17          .              .              .             1.0000      
+site3.s2.t18          .              .              .             1.0000      
+site3.s2.t19          .              .              .             1.0000      
+site3.s2.t20          .              .              .             1.0000      
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU eq_energy~          .              .              .             1.0000      
+
+  eq_energy_total  total energy recovered
+
+---- EQU eq_scenario_limit  only one scenario per site
+
+             LOWER          LEVEL          UPPER         MARGINAL
+
+site1        -INF            1.0000         1.0000          .          
+site2        -INF            1.0000         1.0000          .          
+site3        -INF            1.0000         1.0000          .          
+
+---- EQU eq_revenue_calc  revenue calculation
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+site1.s1.t1           .              .              .             EPS         
+site1.s1.t2           .              .              .             EPS         
+site1.s1.t3           .              .              .             EPS         
+site1.s1.t4           .              .              .             EPS         
+site1.s1.t5           .              .              .             EPS         
+site1.s1.t6           .              .              .             EPS         
+site1.s1.t7           .              .              .             EPS         
+site1.s1.t8           .              .              .             EPS         
+site1.s1.t9           .              .              .             EPS         
+site1.s1.t10          .              .              .             EPS         
+site1.s1.t11          .              .              .             EPS         
+site1.s1.t12          .              .              .             EPS         
+site1.s1.t13          .              .              .             EPS         
+site1.s1.t14          .              .              .             EPS         
+site1.s1.t15          .              .              .             EPS         
+site1.s1.t16          .              .              .             EPS         
+site1.s1.t17          .              .              .             EPS         
+site1.s1.t18          .              .              .             EPS         
+site1.s1.t19          .              .              .             EPS         
+site1.s1.t20          .              .              .             EPS         
+site1.s2.t1           .              .              .              .          
+site1.s2.t2           .              .              .              .          
+site1.s2.t3           .              .              .              .          
+site1.s2.t4           .              .              .              .          
+site1.s2.t5           .              .              .              .          
+site1.s2.t6           .              .              .              .          
+site1.s2.t7           .              .              .              .          
+site1.s2.t8           .              .              .              .          
+site1.s2.t9           .              .              .              .          
+site1.s2.t10          .              .              .              .          
+site1.s2.t11          .              .              .              .          
+site1.s2.t12          .              .              .              .          
+site1.s2.t13          .              .              .              .          
+site1.s2.t14          .              .              .              .          
+site1.s2.t15          .              .              .              .          
+site1.s2.t16          .              .              .              .          
+site1.s2.t17          .              .              .              .          
+site1.s2.t18          .              .              .              .          
+site1.s2.t19          .              .              .              .          
+site1.s2.t20          .              .              .              .          
+site2.s1.t1           .              .              .             EPS         
+site2.s1.t2           .              .              .             EPS         
+site2.s1.t3           .              .              .             EPS         
+site2.s1.t4           .              .              .             EPS         
+site2.s1.t5           .              .              .             EPS         
+site2.s1.t6           .              .              .             EPS         
+site2.s1.t7           .              .              .             EPS         
+site2.s1.t8           .              .              .             EPS         
+site2.s1.t9           .              .              .             EPS         
+site2.s1.t10          .              .              .             EPS         
+site2.s1.t11          .              .              .             EPS         
+site2.s1.t12          .              .              .             EPS         
+site2.s1.t13          .              .              .             EPS         
+site2.s1.t14          .              .              .             EPS         
+site2.s1.t15          .              .              .             EPS         
+site2.s1.t16          .              .              .             EPS         
+site2.s1.t17          .              .              .             EPS         
+site2.s1.t18          .              .              .             EPS         
+site2.s1.t19          .              .              .             EPS         
+site2.s1.t20          .              .              .             EPS         
+site2.s2.t1           .              .              .              .          
+site2.s2.t2           .              .              .              .          
+site2.s2.t3           .              .              .              .          
+site2.s2.t4           .              .              .              .          
+site2.s2.t5           .              .              .              .          
+site2.s2.t6           .              .              .              .          
+site2.s2.t7           .              .              .              .          
+site2.s2.t8           .              .              .              .          
+site2.s2.t9           .              .              .              .          
+site2.s2.t10          .              .              .              .          
+site2.s2.t11          .              .              .              .          
+site2.s2.t12          .              .              .              .          
+site2.s2.t13          .              .              .              .          
+site2.s2.t14          .              .              .              .          
+site2.s2.t15          .              .              .              .          
+site2.s2.t16          .              .              .              .          
+site2.s2.t17          .              .              .              .          
+site2.s2.t18          .              .              .              .          
+site2.s2.t19          .              .              .              .          
+site2.s2.t20          .              .              .              .          
+site3.s1.t1           .              .              .             EPS         
+site3.s1.t2           .              .              .             EPS         
+site3.s1.t3           .              .              .             EPS         
+site3.s1.t4           .              .              .             EPS         
+site3.s1.t5           .              .              .             EPS         
+site3.s1.t6           .              .              .             EPS         
+site3.s1.t7           .              .              .             EPS         
+site3.s1.t8           .              .              .             EPS         
+site3.s1.t9           .              .              .             EPS         
+site3.s1.t10          .              .              .             EPS         
+site3.s1.t11          .              .              .             EPS         
+site3.s1.t12          .              .              .             EPS         
+site3.s1.t13          .              .              .             EPS         
+site3.s1.t14          .              .              .             EPS         
+site3.s1.t15          .              .              .             EPS         
+site3.s1.t16          .              .              .             EPS         
+site3.s1.t17          .              .              .             EPS         
+site3.s1.t18          .              .              .             EPS         
+site3.s1.t19          .              .              .             EPS         
+site3.s1.t20          .              .              .             EPS         
+site3.s2.t1           .              .              .              .          
+site3.s2.t2           .              .              .              .          
+site3.s2.t3           .              .              .              .          
+site3.s2.t4           .              .              .              .          
+site3.s2.t5           .              .              .              .          
+site3.s2.t6           .              .              .              .          
+site3.s2.t7           .              .              .              .          
+site3.s2.t8           .              .              .              .          
+site3.s2.t9           .              .              .              .          
+site3.s2.t10          .              .              .              .          
+site3.s2.t11          .              .              .              .          
+site3.s2.t12          .              .              .              .          
+site3.s2.t13          .              .              .              .          
+site3.s2.t14          .              .              .              .          
+site3.s2.t15          .              .              .              .          
+site3.s2.t16          .              .              .              .          
+site3.s2.t17          .              .              .              .          
+site3.s2.t18          .              .              .              .          
+site3.s2.t19          .              .              .              .          
+site3.s2.t20          .              .              .              .          
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU eq_revenu~          .              .              .             EPS         
+
+  eq_revenue_total  total revenue
+
+---- EQU eq_water_limit  environmental constraint: water usage
+
+             LOWER          LEVEL          UPPER         MARGINAL
+
+site1        -INF          100.0000       110.0000          .          
+site2        -INF           90.0000       100.0000          .          
+site3        -INF           95.0000       100.0000          .          
+
+---- VAR X  1 scenario is selected for site i
+
+                LOWER          LEVEL          UPPER         MARGINAL
+
+site1.s1          .             1.0000         1.0000      1360.0000      
+site1.s2          .              .             1.0000      1120.0000      
+site2.s1          .             1.0000         1.0000      1445.0000      
+site2.s2          .              .             1.0000      1200.0000      
+site3.s1          .             1.0000         1.0000      1530.0000      
+site3.s2          .              .             1.0000      1040.0000      
+
+---- VAR P  power output at site i, scenario s, time t
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+site1.s1.t1           .            68.0000        +INF             .          
+site1.s1.t2           .            68.0000        +INF             .          
+site1.s1.t3           .            68.0000        +INF             .          
+site1.s1.t4           .            68.0000        +INF             .          
+site1.s1.t5           .            68.0000        +INF             .          
+site1.s1.t6           .            68.0000        +INF             .          
+site1.s1.t7           .            68.0000        +INF             .          
+site1.s1.t8           .            68.0000        +INF             .          
+site1.s1.t9           .            68.0000        +INF             .          
+site1.s1.t10          .            68.0000        +INF             .          
+site1.s1.t11          .            68.0000        +INF             .          
+site1.s1.t12          .            68.0000        +INF             .          
+site1.s1.t13          .            68.0000        +INF             .          
+site1.s1.t14          .            68.0000        +INF             .          
+site1.s1.t15          .            68.0000        +INF             .          
+site1.s1.t16          .            68.0000        +INF             .          
+site1.s1.t17          .            68.0000        +INF             .          
+site1.s1.t18          .            68.0000        +INF             .          
+site1.s1.t19          .            68.0000        +INF             .          
+site1.s1.t20          .            68.0000        +INF             .          
+site1.s2.t1           .              .            +INF             .          
+site1.s2.t2           .              .            +INF             .          
+site1.s2.t3           .              .            +INF             .          
+site1.s2.t4           .              .            +INF             .          
+site1.s2.t5           .              .            +INF             .          
+site1.s2.t6           .              .            +INF             .          
+site1.s2.t7           .              .            +INF             .          
+site1.s2.t8           .              .            +INF             .          
+site1.s2.t9           .              .            +INF             .          
+site1.s2.t10          .              .            +INF             .          
+site1.s2.t11          .              .            +INF             .          
+site1.s2.t12          .              .            +INF             .          
+site1.s2.t13          .              .            +INF             .          
+site1.s2.t14          .              .            +INF             .          
+site1.s2.t15          .              .            +INF             .          
+site1.s2.t16          .              .            +INF             .          
+site1.s2.t17          .              .            +INF             .          
+site1.s2.t18          .              .            +INF             .          
+site1.s2.t19          .              .            +INF             .          
+site1.s2.t20          .              .            +INF             .          
+site2.s1.t1           .            72.2500        +INF             .          
+site2.s1.t2           .            72.2500        +INF             .          
+site2.s1.t3           .            72.2500        +INF             .          
+site2.s1.t4           .            72.2500        +INF             .          
+site2.s1.t5           .            72.2500        +INF             .          
+site2.s1.t6           .            72.2500        +INF             .          
+site2.s1.t7           .            72.2500        +INF             .          
+site2.s1.t8           .            72.2500        +INF             .          
+site2.s1.t9           .            72.2500        +INF             .          
+site2.s1.t10          .            72.2500        +INF             .          
+site2.s1.t11          .            72.2500        +INF             .          
+site2.s1.t12          .            72.2500        +INF             .          
+site2.s1.t13          .            72.2500        +INF             .          
+site2.s1.t14          .            72.2500        +INF             .          
+site2.s1.t15          .            72.2500        +INF             .          
+site2.s1.t16          .            72.2500        +INF             .          
+site2.s1.t17          .            72.2500        +INF             .          
+site2.s1.t18          .            72.2500        +INF             .          
+site2.s1.t19          .            72.2500        +INF             .          
+site2.s1.t20          .            72.2500        +INF             .          
+site2.s2.t1           .              .            +INF             .          
+site2.s2.t2           .              .            +INF             .          
+site2.s2.t3           .              .            +INF             .          
+site2.s2.t4           .              .            +INF             .          
+site2.s2.t5           .              .            +INF             .          
+site2.s2.t6           .              .            +INF             .          
+site2.s2.t7           .              .            +INF             .          
+site2.s2.t8           .              .            +INF             .          
+site2.s2.t9           .              .            +INF             .          
+site2.s2.t10          .              .            +INF             .          
+site2.s2.t11          .              .            +INF             .          
+site2.s2.t12          .              .            +INF             .          
+site2.s2.t13          .              .            +INF             .          
+site2.s2.t14          .              .            +INF             .          
+site2.s2.t15          .              .            +INF             .          
+site2.s2.t16          .              .            +INF             .          
+site2.s2.t17          .              .            +INF             .          
+site2.s2.t18          .              .            +INF             .          
+site2.s2.t19          .              .            +INF             .          
+site2.s2.t20          .              .            +INF             .          
+site3.s1.t1           .            76.5000        +INF             .          
+site3.s1.t2           .            76.5000        +INF             .          
+site3.s1.t3           .            76.5000        +INF             .          
+site3.s1.t4           .            76.5000        +INF             .          
+site3.s1.t5           .            76.5000        +INF             .          
+site3.s1.t6           .            76.5000        +INF             .          
+site3.s1.t7           .            76.5000        +INF             .          
+site3.s1.t8           .            76.5000        +INF             .          
+site3.s1.t9           .            76.5000        +INF             .          
+site3.s1.t10          .            76.5000        +INF             .          
+site3.s1.t11          .            76.5000        +INF             .          
+site3.s1.t12          .            76.5000        +INF             .          
+site3.s1.t13          .            76.5000        +INF             .          
+site3.s1.t14          .            76.5000        +INF             .          
+site3.s1.t15          .            76.5000        +INF             .          
+site3.s1.t16          .            76.5000        +INF             .          
+site3.s1.t17          .            76.5000        +INF             .          
+site3.s1.t18          .            76.5000        +INF             .          
+site3.s1.t19          .            76.5000        +INF             .          
+site3.s1.t20          .            76.5000        +INF             .          
+site3.s2.t1           .              .            +INF             .          
+site3.s2.t2           .              .            +INF             .          
+site3.s2.t3           .              .            +INF             .          
+site3.s2.t4           .              .            +INF             .          
+site3.s2.t5           .              .            +INF             .          
+site3.s2.t6           .              .            +INF             .          
+site3.s2.t7           .              .            +INF             .          
+site3.s2.t8           .              .            +INF             .          
+site3.s2.t9           .              .            +INF             .          
+site3.s2.t10          .              .            +INF             .          
+site3.s2.t11          .              .            +INF             .          
+site3.s2.t12          .              .            +INF             .          
+site3.s2.t13          .              .            +INF             .          
+site3.s2.t14          .              .            +INF             .          
+site3.s2.t15          .              .            +INF             .          
+site3.s2.t16          .              .            +INF             .          
+site3.s2.t17          .              .            +INF             .          
+site3.s2.t18          .              .            +INF             .          
+site3.s2.t19          .              .            +INF             .          
+site3.s2.t20          .              .            +INF             .          
+
+---- VAR R  revenue from energy generation
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+site1.s1.t1           .          2040.0000        +INF             .          
+site1.s1.t2           .          2040.0000        +INF             .          
+site1.s1.t3           .          2040.0000        +INF             .          
+site1.s1.t4           .          2040.0000        +INF             .          
+site1.s1.t5           .          2040.0000        +INF             .          
+site1.s1.t6           .          2040.0000        +INF             .          
+site1.s1.t7           .          2040.0000        +INF             .          
+site1.s1.t8           .          2040.0000        +INF             .          
+site1.s1.t9           .          2040.0000        +INF             .          
+site1.s1.t10          .          2040.0000        +INF             .          
+site1.s1.t11          .          2040.0000        +INF             .          
+site1.s1.t12          .          2040.0000        +INF             .          
+site1.s1.t13          .          2040.0000        +INF             .          
+site1.s1.t14          .          2040.0000        +INF             .          
+site1.s1.t15          .          2040.0000        +INF             .          
+site1.s1.t16          .          2040.0000        +INF             .          
+site1.s1.t17          .          2040.0000        +INF             .          
+site1.s1.t18          .          2040.0000        +INF             .          
+site1.s1.t19          .          2040.0000        +INF             .          
+site1.s1.t20          .          2040.0000        +INF             .          
+site1.s2.t1           .              .            +INF            EPS         
+site1.s2.t2           .              .            +INF            EPS         
+site1.s2.t3           .              .            +INF            EPS         
+site1.s2.t4           .              .            +INF            EPS         
+site1.s2.t5           .              .            +INF            EPS         
+site1.s2.t6           .              .            +INF            EPS         
+site1.s2.t7           .              .            +INF            EPS         
+site1.s2.t8           .              .            +INF            EPS         
+site1.s2.t9           .              .            +INF            EPS         
+site1.s2.t10          .              .            +INF            EPS         
+site1.s2.t11          .              .            +INF            EPS         
+site1.s2.t12          .              .            +INF            EPS         
+site1.s2.t13          .              .            +INF            EPS         
+site1.s2.t14          .              .            +INF            EPS         
+site1.s2.t15          .              .            +INF            EPS         
+site1.s2.t16          .              .            +INF            EPS         
+site1.s2.t17          .              .            +INF            EPS         
+site1.s2.t18          .              .            +INF            EPS         
+site1.s2.t19          .              .            +INF            EPS         
+site1.s2.t20          .              .            +INF            EPS         
+site2.s1.t1           .          2167.5000        +INF             .          
+site2.s1.t2           .          2167.5000        +INF             .          
+site2.s1.t3           .          2167.5000        +INF             .          
+site2.s1.t4           .          2167.5000        +INF             .          
+site2.s1.t5           .          2167.5000        +INF             .          
+site2.s1.t6           .          2167.5000        +INF             .          
+site2.s1.t7           .          2167.5000        +INF             .          
+site2.s1.t8           .          2167.5000        +INF             .          
+site2.s1.t9           .          2167.5000        +INF             .          
+site2.s1.t10          .          2167.5000        +INF             .          
+site2.s1.t11          .          2167.5000        +INF             .          
+site2.s1.t12          .          2167.5000        +INF             .          
+site2.s1.t13          .          2167.5000        +INF             .          
+site2.s1.t14          .          2167.5000        +INF             .          
+site2.s1.t15          .          2167.5000        +INF             .          
+site2.s1.t16          .          2167.5000        +INF             .          
+site2.s1.t17          .          2167.5000        +INF             .          
+site2.s1.t18          .          2167.5000        +INF             .          
+site2.s1.t19          .          2167.5000        +INF             .          
+site2.s1.t20          .          2167.5000        +INF             .          
+site2.s2.t1           .              .            +INF            EPS         
+site2.s2.t2           .              .            +INF            EPS         
+site2.s2.t3           .              .            +INF            EPS         
+site2.s2.t4           .              .            +INF            EPS         
+site2.s2.t5           .              .            +INF            EPS         
+site2.s2.t6           .              .            +INF            EPS         
+site2.s2.t7           .              .            +INF            EPS         
+site2.s2.t8           .              .            +INF            EPS         
+site2.s2.t9           .              .            +INF            EPS         
+site2.s2.t10          .              .            +INF            EPS         
+site2.s2.t11          .              .            +INF            EPS         
+site2.s2.t12          .              .            +INF            EPS         
+site2.s2.t13          .              .            +INF            EPS         
+site2.s2.t14          .              .            +INF            EPS         
+site2.s2.t15          .              .            +INF            EPS         
+site2.s2.t16          .              .            +INF            EPS         
+site2.s2.t17          .              .            +INF            EPS         
+site2.s2.t18          .              .            +INF            EPS         
+site2.s2.t19          .              .            +INF            EPS         
+site2.s2.t20          .              .            +INF            EPS         
+site3.s1.t1           .          2295.0000        +INF             .          
+site3.s1.t2           .          2295.0000        +INF             .          
+site3.s1.t3           .          2295.0000        +INF             .          
+site3.s1.t4           .          2295.0000        +INF             .          
+site3.s1.t5           .          2295.0000        +INF             .          
+site3.s1.t6           .          2295.0000        +INF             .          
+site3.s1.t7           .          2295.0000        +INF             .          
+site3.s1.t8           .          2295.0000        +INF             .          
+site3.s1.t9           .          2295.0000        +INF             .          
+site3.s1.t10          .          2295.0000        +INF             .          
+site3.s1.t11          .          2295.0000        +INF             .          
+site3.s1.t12          .          2295.0000        +INF             .          
+site3.s1.t13          .          2295.0000        +INF             .          
+site3.s1.t14          .          2295.0000        +INF             .          
+site3.s1.t15          .          2295.0000        +INF             .          
+site3.s1.t16          .          2295.0000        +INF             .          
+site3.s1.t17          .          2295.0000        +INF             .          
+site3.s1.t18          .          2295.0000        +INF             .          
+site3.s1.t19          .          2295.0000        +INF             .          
+site3.s1.t20          .          2295.0000        +INF             .          
+site3.s2.t1           .              .            +INF            EPS         
+site3.s2.t2           .              .            +INF            EPS         
+site3.s2.t3           .              .            +INF            EPS         
+site3.s2.t4           .              .            +INF            EPS         
+site3.s2.t5           .              .            +INF            EPS         
+site3.s2.t6           .              .            +INF            EPS         
+site3.s2.t7           .              .            +INF            EPS         
+site3.s2.t8           .              .            +INF            EPS         
+site3.s2.t9           .              .            +INF            EPS         
+site3.s2.t10          .              .            +INF            EPS         
+site3.s2.t11          .              .            +INF            EPS         
+site3.s2.t12          .              .            +INF            EPS         
+site3.s2.t13          .              .            +INF            EPS         
+site3.s2.t14          .              .            +INF            EPS         
+site3.s2.t15          .              .            +INF            EPS         
+site3.s2.t16          .              .            +INF            EPS         
+site3.s2.t17          .              .            +INF            EPS         
+site3.s2.t18          .              .            +INF            EPS         
+site3.s2.t19          .              .            +INF            EPS         
+site3.s2.t20          .              .            +INF            EPS         
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR Energy_to~        -INF         4335.0000        +INF             .          
+---- VAR Revenue_t~        -INF       130050.0000        +INF             .          
+
+  Energy_total  total energy recovered (MWh)
+  Revenue_total  total revenue ($)
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 50.4.1  84b10359 Aug 28, 2025          WEX-WEI x86 64bit/MS Windows - 10/22/25 01:54:53 Page 8
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----     87 VARIABLE Energy_total.L        =     4335.000  total energy recovered (MWh)
+            VARIABLE Revenue_total.L       =   130050.000  total revenue ($)
+
+----     87 VARIABLE X.L  1 scenario is selected for site i
+
+               s1
+
+site1       1.000
+site2       1.000
+site3       1.000
+
+
+----     87 VARIABLE P.L  power output at site i, scenario s, time t
+
+                  t1          t2          t3          t4          t5          t6          t7          t8          t9         t10         t11         t12         t13         t14         t15         t16         t17         t18         t19         t20
+
+site1.s1      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000      68.000
+site2.s1      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250      72.250
+site3.s1      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500      76.500
+
+
+----     87 VARIABLE R.L  revenue from energy generation
+
+                  t1          t2          t3          t4          t5          t6          t7          t8          t9         t10         t11         t12         t13         t14         t15         t16         t17         t18         t19         t20
+
+site1.s1    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000    2040.000
+site2.s1    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500    2167.500
+site3.s1    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000    2295.000
+
+
+
+EXECUTION TIME       =        0.250 SECONDS      4 MB  50.4.1 84b10359 WEX-WEI
+
+
+USER: Computational Economics EBGN 645               G250827|0002AO-GEN
+      Colorado School of Mines, Operations Research Department  DCE4628
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\srava\Downloads\homework 1.b.gms
+Output     C:\Users\srava\Downloads\homework 1.b.lst
